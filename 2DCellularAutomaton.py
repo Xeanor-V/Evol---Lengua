@@ -178,10 +178,13 @@ def CountNeighbors(yi, xi):
 	maxidx2 = 0
 	for i in len(Colors):
 		Colors[i] = Colors[i] / len(Colors)
-		if(Colors[i] >= max1):
+		if(Colors[i] >= max1 and Colors[i] != '0'):
 			max1 = Colors[i]
 			maxidx2 = maxidx1
 			maxidx1 = i
+
+	if(max1 == -1)
+	return 0
 
 	if(currconfV[xi][yi] == '0'):
 		return maxidx1
