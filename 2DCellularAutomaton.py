@@ -165,23 +165,42 @@ def SubCell(event):
 def CountNeighbors(yi, xi):
 	global currconfV, wideV, highV, dir_x, dir_y
 	res = 0
+	Colors = [0,0,0,0,0,0,0]
 	for i in range(8):
 		nx = (xi + dir_x[i] + wideV) % wideV
 		ny = (yi + dir_y[i] + highV) % highV
-		if (currconfV[ny][nx] == '1'):
-			res += 1
-	return res
+		if (currconfV[ny][nx] != '0'):
+			Colors[currconfV[ny][nx]-1] +=1
+	
+	##Calcular % del color
+	max1 = -1
+	maxidx1 = 0
+	maxidx2 = 0
+	for i in len(Colors):
+		Colors[i] = Colors[i] / len(Colors)
+		if(Colors[i] >= max1):
+			max1 = Colors[i]
+			maxidx2 = maxidx1
+			maxidx1 = i
+
+	if(currconfV[xi][yi] == '0'):
+		return maxidx1
+	if(currconfV[xi][yi] == maxidx1 and max1>=0.5):
+		return maxidx1
+	if(max1>=0.5):
+		return maxidx1
+
+	return ceil( (maxidx1 + maxidx2) /2)
+
+
+
 	
 def CalcNewState():
 	global Ba, Bb, Sa, Sb, currconfV, wideV, highV
 	tmp = [['0' for i in range(wideV)] for j in range(highV)]
 	for i in range(highV):
 		for j in range(wideV):
-			noNeighbors = CountNeighbors(i, j)
-			if ((currconfV[i][j] == '0') and ((noNeighbors >= Ba) and (noNeighbors <= Bb))):
-				tmp[i][j] = '1'
-			if ((currconfV[i][j] == '1') and ((noNeighbors >= Sa) and (noNeighbors <= Sb))):
-				tmp[i][j] = '1'
+			tmp[i][j] = CountNeighbors(i, j)
 	currconfV = tmp
 
 def Process():
