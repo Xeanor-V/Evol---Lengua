@@ -16,6 +16,8 @@ Bb = 1
 Sa = 1
 Sb = 1
 
+name_of_colors = ["black", "white", "mediumvioletred", "midnightblue", "mediumblue", "forestgreen", "yellow", "orange", "red"]
+
 currconfV = [[]]
 
 cellsizeV = 1
@@ -33,7 +35,7 @@ running = 0
 
 def Showcells():
 	global highV, wideV, Ba, Bb, Sa, Sb, currconfV, cellsizeV, sval
-	print currconfV
+	#print currconfV
 	caGrid.delete("all")
 	image1 = Image.new("RGB", (wideV * (cellsizeV + sval), highV * (cellsizeV + sval)), (255, 255, 255))
 	imagename = "RuleB{0}{1}_S{2}{3}img.png".format(Ba, Bb, Sa, Sb)
@@ -44,9 +46,9 @@ def Showcells():
 		dval = 1
 	for i in range(highV):
 		for j in range(wideV):
-			if (currconfV[i][j] == 1):
-				draw.setfill(1)
-				draw.rectangle([(j * (cellsizeV + sval)), (i * (cellsizeV + sval)), ((j + 1) * (cellsizeV + sval)) - 1 - dval, ((i + 1) * (cellsizeV + sval)) - 1 - dval], fill = "black")
+			#if (currconfV[i][j] == 1):
+			draw.setfill(1)
+			draw.rectangle([(j * (cellsizeV + sval)), (i * (cellsizeV + sval)), ((j + 1) * (cellsizeV + sval)) - 1 - dval, ((i + 1) * (cellsizeV + sval)) - 1 - dval], fill = name_of_colors[currconfV[i][j] + 1])
 	caGrid.delete("all")
 	image1.save(imagename)
 	imm = ImageTk.PhotoImage(file = './'+imagename)
@@ -98,6 +100,13 @@ def ValidData():
 	
 	currconfV = [[0 for i in range(wideV)] for j in range(highV)]
 	
+	for i in xrange(wideV):
+		currconfV[0][i] = -1
+		currconfV[highV - 1][i] = -1
+	for i in xrange(highV):
+		currconfV[i][0] = -1
+		currconfV[i][wideV - 1] = -1
+	
 	if (randomIniConfV.get() == 1):
 		try:
 			randomPercentageV = float(randomPercentageEntry.get())
@@ -106,14 +115,14 @@ def ValidData():
 			manyOnes = int((randomPercentageV * float(wideV * highV)) / 100.0)
 			print 'From {0} cells {1} will start alive'.format(wideV * highV, manyOnes)
 			while (manyOnes):
-				pos = random.randint(0, (wideV * highV) - 1)
+				pos = random.randint(1, (wideV * highV) - 2)
 				xi = pos % wideV
 				yi = pos / wideV
 				while (currconfV[yi][xi] != 0):
-					pos = random.randint(0, (wideV * highV) - 1)
+					pos = random.randint(1, (wideV * highV) - 2)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = 1
+				currconfV[yi][xi] = random.randint(2, len(name_of_colors) - 2)
 				manyOnes -= 1
 		except:
 			tkMessageBox.showinfo("Invalid Data", "Random Percentage Value must be a real value between 0.0 and 100.0")
