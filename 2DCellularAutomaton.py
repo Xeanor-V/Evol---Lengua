@@ -170,25 +170,30 @@ def CountNeighbors(yi, xi):
 		nx = (xi + dir_x[i] + wideV) % wideV
 		ny = (yi + dir_y[i] + highV) % highV
 		if (currconfV[ny][nx] != '0'):
-			Colors[currconfV[ny][nx]-1] +=1
+			Colors[ ord(currconfV[ny][nx]) ] +=1
 	
 	##Calcular % del color
 	max1 = -1
+	max2 = -1
 	maxidx1 = 0
 	maxidx2 = 0
 	for i in len(Colors):
-		Colors[i] = Colors[i] / len(Colors)
-		if(Colors[i] >= max1 and Colors[i] != '0'):
-			max1 = Colors[i]
+		Colors[i] = float(Colors[i]) / len(Colors)
+		if(Colors[i] > max1 and Colors[i] !=0):
 			maxidx2 = maxidx1
-			maxidx1 = i
+			max2 = max1
+			max1 = Colors[i]
+			maxidx2 = i
+		elif (Colors[i] > max2 and Colors[i] !=0):
+			maxidx2 = i
+			max2 = Colors[i]
 
-	if(max1 == -1)
-	return 0
+	if(max1 == -1):
+		return 0
 
 	if(currconfV[xi][yi] == '0'):
 		return maxidx1
-	if(currconfV[xi][yi] == maxidx1 and max1>=0.5):
+	if(currconfV[xi][yi] == char(maxidx1) and max1>=0.5):
 		return maxidx1
 	if(max1>=0.5):
 		return maxidx1
@@ -203,7 +208,9 @@ def CalcNewState():
 	tmp = [['0' for i in range(wideV)] for j in range(highV)]
 	for i in range(highV):
 		for j in range(wideV):
-			tmp[i][j] = CountNeighbors(i, j)
+			if tmp[i][j] == '-1':
+				continue
+			tmp[i][j] = char(CountNeighbors(i, j))
 	currconfV = tmp
 
 def Process():
