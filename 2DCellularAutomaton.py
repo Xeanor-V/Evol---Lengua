@@ -6,6 +6,7 @@ import random
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import time
+import math
 
 root = Tk()
 root.geometry('{}x{}'.format(1215, 680))
@@ -23,8 +24,8 @@ sval = 1
 highV = 1
 wideV = 1
 	
-dir_x = [1, 1, 1, 0, 0, -1, -1, -1]
-dir_y = [1, 0, -1, 1, -1, 1, 0, -1]
+dir_x = [1, 1, 1, 0, 0, -1, -1, -1, 0]
+dir_y = [1, 0, -1, 1, -1, 1, 0, -1, 0]
 
 datavalidated = 0
 
@@ -32,6 +33,7 @@ running = 0
 
 def Showcells():
 	global highV, wideV, Ba, Bb, Sa, Sb, currconfV, cellsizeV, sval
+	print currconfV
 	caGrid.delete("all")
 	image1 = Image.new("RGB", (wideV * (cellsizeV + sval), highV * (cellsizeV + sval)), (255, 255, 255))
 	imagename = "RuleB{0}{1}_S{2}{3}img.png".format(Ba, Bb, Sa, Sb)
@@ -42,7 +44,7 @@ def Showcells():
 		dval = 1
 	for i in range(highV):
 		for j in range(wideV):
-			if (currconfV[i][j] == '1'):
+			if (currconfV[i][j] == 1):
 				draw.setfill(1)
 				draw.rectangle([(j * (cellsizeV + sval)), (i * (cellsizeV + sval)), ((j + 1) * (cellsizeV + sval)) - 1 - dval, ((i + 1) * (cellsizeV + sval)) - 1 - dval], fill = "black")
 	caGrid.delete("all")
@@ -66,30 +68,6 @@ def ValidData():
 	print "Wide Size: ", wideEntry.get()
 	print "Random Percentage: ", randomPercentageEntry.get()
 	print "Cell Size: ", cellsizeEntry.get()
-	try:
-		rv = ruleEntry.get().split('/')
-		if ((rv[0][0] != 'B') or (rv[1][0] != 'S')):
-			raise
-		if ((len(rv[0]) > 3) or (len(rv[1]) > 3)):
-			raise
-		
-		Ba = int(rv[0][1])
-		Bb = Ba
-		if (len(rv[0]) == 3):
-			Bb = int(rv[0][2])
-		
-		Sa = int(rv[1][1])
-		Sb = Sa
-		if (len(rv[1]) == 3):
-			Sb = int(rv[1][2])
-			
-		if (not((Ba <= 8) and (Ba >= 0) and (Bb <= 8) and (Bb >= 0))):
-			raise
-		if (not((Sa <= 8) and (Sa >= 0) and (Sb <= 8) and (Sb >= 0))):
-			raise
-	except:
-		tkMessageBox.showinfo("Invalid Data", "Rule Value must be in the format 'Bxx/Sxx' with 0 <= x <= 8")
-		return False
 		
 	try:
 		wideV = int(wideEntry.get())
@@ -118,7 +96,7 @@ def ValidData():
 		tkMessageBox.showinfo("Invalid Data", "CellSize Value must be a non-negative integer")
 		return False
 	
-	currconfV = [['0' for i in range(wideV)] for j in range(highV)]
+	currconfV = [[0 for i in range(wideV)] for j in range(highV)]
 	
 	if (randomIniConfV.get() == 1):
 		try:
@@ -131,11 +109,11 @@ def ValidData():
 				pos = random.randint(0, (wideV * highV) - 1)
 				xi = pos % wideV
 				yi = pos / wideV
-				while (currconfV[yi][xi] == '1'):
+				while (currconfV[yi][xi] != 0):
 					pos = random.randint(0, (wideV * highV) - 1)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = '1'
+				currconfV[yi][xi] = 1
 				manyOnes -= 1
 		except:
 			tkMessageBox.showinfo("Invalid Data", "Random Percentage Value must be a real value between 0.0 and 100.0")
@@ -150,7 +128,7 @@ def AddCell(event):
 	ny = event.y / (cellsizeV + sval)
 	if ((ny < 0) or (ny >= highV) or (nx < 0) or (nx >= wideV)):
 		return
-	currconfV[ny][nx] = '1'
+	currconfV[ny][nx] = 1
 	Showcells()
 
 def SubCell(event):
@@ -159,58 +137,64 @@ def SubCell(event):
 	ny = event.y / (cellsizeV + sval)
 	if ((ny < 0) or (ny >= highV) or (nx < 0) or (nx >= wideV)):
 		return
-	currconfV[ny][nx] = '0'
+	currconfV[ny][nx] = 1
 	Showcells()
 	
 def CountNeighbors(yi, xi):
 	global currconfV, wideV, highV, dir_x, dir_y
 	res = 0
-	Colors = [0,0,0,0,0,0,0]
-	for i in range(8):
+	Colors = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+	manywc = 0.0
+	for i in range(9):
 		nx = (xi + dir_x[i] + wideV) % wideV
 		ny = (yi + dir_y[i] + highV) % highV
-		if (currconfV[ny][nx] != '0'):
-			Colors[ ord(currconfV[ny][nx]) ] +=1
+		if (currconfV[ny][nx] > 0):
+			Colors[ currconfV[ny][nx] - 1 ] += 1.0
+			manywc += 1.0
+	
+	if (manywc == 0.0):
+		return 0
 	
 	##Calcular % del color
-	max1 = -1
-	max2 = -1
+	max1 = -1.0
+	max2 = -1.0
 	maxidx1 = 0
 	maxidx2 = 0
-	for i in len(Colors):
-		Colors[i] = float(Colors[i]) / len(Colors)
-		if(Colors[i] > max1 and Colors[i] !=0):
+	for i in xrange(len(Colors)):
+		Colors[i] = Colors[i] / manywc
+		if((Colors[i] > max1) and (Colors[i] != 0.0)):
 			maxidx2 = maxidx1
 			max2 = max1
 			max1 = Colors[i]
-			maxidx2 = i
-		elif (Colors[i] > max2 and Colors[i] !=0):
-			maxidx2 = i
+			maxidx1 = i + 1
+		elif ((Colors[i] > max2) and (Colors[i] != 0.0)):
+			maxidx2 = i + 1
 			max2 = Colors[i]
-
-	if(max1 == -1):
+	
+	if(max1 == -1.0):
 		return 0
 
-	if(currconfV[xi][yi] == '0'):
+	#print Colors
+	#print "{0} {1}".format(maxidx1, maxidx2)
+		
+	if(currconfV[xi][yi] == 0):
 		return maxidx1
-	if(currconfV[xi][yi] == char(maxidx1) and max1>=0.5):
+	if((currconfV[xi][yi] == maxidx1) and (max1 >= 0.5)):
 		return maxidx1
-	if(max1>=0.5):
+	if(max1 >= 0.5):
 		return maxidx1
 
-	return ceil( (maxidx1 + maxidx2) /2)
-
-
-
+	return int(math.ceil( float(maxidx1 + maxidx2) / 2.0))
 	
 def CalcNewState():
 	global Ba, Bb, Sa, Sb, currconfV, wideV, highV
-	tmp = [['0' for i in range(wideV)] for j in range(highV)]
+	tmp = [[0 for i in range(wideV)] for j in range(highV)]
 	for i in range(highV):
 		for j in range(wideV):
-			if tmp[i][j] == '-1':
+			if currconfV[i][j] == -1:
+				tmp[i][j] = -1
 				continue
-			tmp[i][j] = char(CountNeighbors(i, j))
+			tmp[i][j] = CountNeighbors(i, j)
 	currconfV = tmp
 
 def Process():
