@@ -22,7 +22,7 @@ name_of_colors = ["black", "white", "mediumvioletred","blueviolet", "midnightblu
 currconfV = [[]]
 
 cellsizeV = 1
-sval = 1
+sval = 0
 
 highV = 1
 wideV = 1
@@ -45,8 +45,8 @@ def Showcells():
 	draw = ImageDraw.Draw(image1)
 	viewyv = 0.0
 	dval = 0
-	if (cellsizeV != 0):
-		dval = 1
+	#if (cellsizeV != 0):
+		#dval = 1
 	for i in range(highV):
 		for j in range(wideV):
 			#if (currconfV[i][j] == 1):
@@ -134,14 +134,15 @@ def ValidData():
 				raise
 			manyOnes = int((randomPercentageV * float(wideV * highV)) / 100.0)
 			print 'From {0} cells {1} will start alive'.format(wideV * highV, manyOnes)
-			rcolors = [0 for i in xrange(len(name_of_colors))]
+			rcolors = [0 for i in xrange(len(name_of_colors) - 2)]
 			tmpv = 0
-			while (tmpv < len(name_of_colors)):
+			while (tmpv < (len(name_of_colors) - 2)):
 				if (tmpv % 2) == 0:
-					rcolors[tmpv] = tmpv + 2
+					rcolors[tmpv] = (tmpv / 2) + 2
 				else:
-					rcolors[tmpv] = len(name_of_colors) - tmpv
+					rcolors[tmpv] = len(name_of_colors) - (tmpv / 2) - 1 
 				tmpv += 1
+			#print rcolors
 			tmpv = 0
 			while (manyOnes):
 				pos = random.randint(1, (wideV * highV) - 2)
