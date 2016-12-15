@@ -16,7 +16,7 @@ Bb = 1
 Sa = 1
 Sb = 1
 
-name_of_colors = ["black", "white", "mediumvioletred", "midnightblue", "mediumblue", "forestgreen", "yellow", "orange", "red"]
+name_of_colors = ["black", "white", "mediumvioletred","blueviolet", "midnightblue", "mediumblue", "forestgreen", "yellow", "orange", "firebrick", "red"]
 
 currconfV = [[]]
 
@@ -134,6 +134,15 @@ def ValidData():
 				raise
 			manyOnes = int((randomPercentageV * float(wideV * highV)) / 100.0)
 			print 'From {0} cells {1} will start alive'.format(wideV * highV, manyOnes)
+			rcolors = [0 for i in xrange(len(name_of_colors))]
+			tmpv = 0
+			while (tmpv < len(name_of_colors)):
+				if (tmpv % 2) == 0:
+					rcolors[tmpv] = tmpv
+				else:
+					rcolors[tmpv] = len(name_of_colors) - tmpv - 1
+				tmpv += 1
+			tmpv = 0
 			while (manyOnes):
 				pos = random.randint(1, (wideV * highV) - 2)
 				xi = pos % wideV
@@ -142,8 +151,9 @@ def ValidData():
 					pos = random.randint(1, (wideV * highV) - 2)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = random.randint(2, len(name_of_colors) - 2)
+				currconfV[yi][xi] = rcolors[tmpv]
 				manyOnes -= 1
+				tmpv += 1
 		except:
 			tkMessageBox.showinfo("Invalid Data", "Random Percentage Value must be a real value between 0.0 and 100.0")
 			return False
@@ -172,7 +182,7 @@ def SubCell(event):
 def CountNeighbors(yi, xi):
 	global currconfV, wideV, highV, dir_x, dir_y
 	res = 0
-	Colors = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+	Colors = [0.0 for i in xrange(len(name_of_colors))]
 	manywc = 0.0
 	for i in range(len(dir_x)):
 		nx = (xi + dir_x[i] + wideV) % wideV
