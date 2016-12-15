@@ -83,9 +83,20 @@ def Showcells():
 	caGrid.yview_moveto(viewyv)
 	caGrid.update_idletasks()
 	strtemp = "Original Colors:\n{0}\n\n".format(origin_colors)
-	
+	plist = []
+	sumt = 0.0
 	for i in xrange(1, len(name_of_colors)):
-		strtemp += "{0}: {1}\n".format(name_of_colors[i], CountColor(i - 1))
+		pval = CountColor(i - 1)
+		plist.append([pval, float(pval), name_of_colors[i]])
+		sumt += float(pval);
+	plistlen = len(plist)
+	for i in xrange(plistlen):
+		plist[i - 1][1] /= sumt
+		plist[i - 1][1] *= 100.0
+		
+	plist.sort()
+	for i in xrange(plistlen):
+		strtemp += "{0}: {1} / {2:.2f}%\n".format(plist[plistlen - i - 1][2], plist[plistlen - i - 1][0], plist[plistlen - i - 1][1])
 	
 	smvar.set(strtemp)
 
