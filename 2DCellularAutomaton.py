@@ -1,4 +1,5 @@
 from Tkinter import *
+from ttk import *
 from tkFileDialog import askopenfilename
 from PIL import Image, ImageDraw, ImageColor, ImageTk
 import tkMessageBox
@@ -67,7 +68,6 @@ def Showcells():
 def ValidData():
 	global Ba, Bb, Sa, Sb, wideV, highV, currconfV, cellsizeV, sval, datavalidated
 	print "Random Generated Initial Configuration: ", randomIniConfV.get()
-	print "Rule: ", ruleEntry.get()
 	print "High: ", highEntry.get()
 	print "Wide Size: ", wideEntry.get()
 	print "Random Percentage: ", randomPercentageEntry.get()
@@ -151,7 +151,7 @@ def ValidData():
 					pos = random.randint(1, (wideV * highV) - 2)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = rcolors[tmpv]
+				currconfV[yi][xi] = rcolors[tmpv % len(rcolors)]
 				manyOnes -= 1
 				tmpv += 1
 		except:
@@ -167,7 +167,7 @@ def AddCell(event):
 	ny = event.y / (cellsizeV + sval)
 	if ((ny < 0) or (ny >= highV) or (nx < 0) or (nx >= wideV)):
 		return
-	currconfV[ny][nx] = random.randint(2, len(name_of_colors) - 2)
+	currconfV[ny][nx] = addColorCombo.current(None) - 1
 	Showcells()
 
 def SubCell(event):
@@ -272,11 +272,12 @@ wideLabel.grid(row = 1, column = 1)
 wideEntry = Entry(root, width = 15)
 wideEntry.grid(row = 1, column = 2)
 
-ruleLabel = Label(root, text = "Rule: ")
-ruleLabel.grid(row = 0, column = 4)
+addColorLabel = Label(root, text = "Add Color: ")
+addColorLabel.grid(row = 0, column = 4)
 
-ruleEntry = Entry(root, width = 15)
-ruleEntry.grid(row = 0, column = 5)
+addColorCombo = Combobox(root, values = name_of_colors)
+addColorCombo.grid(row = 0, column = 5)
+addColorCombo.set("black")
 
 dataButton = Button(root, text = "Read Data", command = ValidData)
 dataButton.grid(row = 0,column = 3)
