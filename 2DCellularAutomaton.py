@@ -178,6 +178,16 @@ def SubCell(event):
 		return
 	currconfV[ny][nx] = 0
 	Showcells()
+
+def CountColor(color):
+	global currconfV, wideV, highV
+	res = 0
+	for i in range(highV):
+		for j in range(wideV):
+			if currconfV[i][j] == color:
+				res+=1
+	return res
+
 	
 def CountNeighbors(yi, xi):
 	global currconfV, wideV, highV, dir_x, dir_y
