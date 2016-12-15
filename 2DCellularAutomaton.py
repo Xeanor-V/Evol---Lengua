@@ -2,6 +2,7 @@ from Tkinter import *
 from ttk import *
 from tkFileDialog import askopenfilename
 from PIL import Image, ImageDraw, ImageColor, ImageTk
+from sets import Set
 import tkMessageBox
 import random
 import matplotlib.pyplot as plt
@@ -36,6 +37,23 @@ datavalidated = 0
 
 running = 0
 
+top = Toplevel()
+top.minsize(300, 300)
+top.title("Statics")
+smvar = StringVar()
+origin_colors = Set()
+msg = Message(top, textvariable = smvar)
+msg.pack()
+
+def CountColor(color):
+	global currconfV, wideV, highV, top, msg, smvar
+	res = 0
+	for i in range(highV):
+		for j in range(wideV):
+			if currconfV[i][j] == color:
+				res += 1
+	return res
+
 def Showcells():
 	global highV, wideV, Ba, Bb, Sa, Sb, currconfV, cellsizeV, sval
 	#print currconfV
@@ -47,8 +65,8 @@ def Showcells():
 	dval = 0
 	#if (cellsizeV != 0):
 		#dval = 1
-	for i in range(highV):
-		for j in range(wideV):
+	for i in xrange(highV):
+		for j in xrange(wideV):
 			#if (currconfV[i][j] == 1):
 			draw.setfill(1)
 			draw.rectangle([(j * (cellsizeV + sval)), (i * (cellsizeV + sval)), ((j + 1) * (cellsizeV + sval)) - 1 - dval, ((i + 1) * (cellsizeV + sval)) - 1 - dval], fill = name_of_colors[currconfV[i][j] + 1])
@@ -64,9 +82,15 @@ def Showcells():
 		viewyv += float(300.0 / float(generationsV * 2))
 	caGrid.yview_moveto(viewyv)
 	caGrid.update_idletasks()
+	strtemp = "Original Colors:\n{0}\n\n".format(origin_colors)
+	
+	for i in xrange(1, len(name_of_colors)):
+		strtemp += "{0}: {1}\n".format(name_of_colors[i], CountColor(i - 1))
+	
+	smvar.set(strtemp)
 
 def ValidData():
-	global Ba, Bb, Sa, Sb, wideV, highV, currconfV, cellsizeV, sval, datavalidated
+	global Ba, Bb, Sa, Sb, wideV, highV, currconfV, cellsizeV, sval, datavalidated, origin_colors
 	print "Random Generated Initial Configuration: ", randomIniConfV.get()
 	print "High: ", highEntry.get()
 	print "Wide Size: ", wideEntry.get()
@@ -135,15 +159,15 @@ def ValidData():
 			manyOnes = int((randomPercentageV * float(wideV * highV)) / 100.0)
 			print 'From {0} cells {1} will start alive'.format(wideV * highV, manyOnes)
 			rcolors = [0 for i in xrange(len(name_of_colors) - 2)]
-			tmpv = 0
-			while (tmpv < (len(name_of_colors) - 2)):
-				if (tmpv % 2) == 0:
-					rcolors[tmpv] = (tmpv / 2) + 2
-				else:
-					rcolors[tmpv] = len(name_of_colors) - (tmpv / 2) - 1 
-				tmpv += 1
+			#tmpv = 0
+			#while (tmpv < (len(name_of_colors) - 2)):
+			#	if (tmpv % 2) == 0:
+			#		rcolors[tmpv] = (tmpv / 2) + 2
+			#	else:
+			#		rcolors[tmpv] = len(name_of_colors) - (tmpv / 2) - 1 
+			#	tmpv += 1
 			#print rcolors
-			tmpv = 0
+			#tmpv = 0
 			while (manyOnes):
 				pos = random.randint(1, (wideV * highV) - 2)
 				xi = pos % wideV
@@ -152,13 +176,23 @@ def ValidData():
 					pos = random.randint(1, (wideV * highV) - 2)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = rcolors[tmpv % len(rcolors)] - 1
+				#currconfV[yi][xi] = rcolors[tmpv % len(rcolors)] - 1
+				colorv = random.randint(0, len(name_of_colors) - 3)
+				while(rcolors[colorv] != 0):
+					colorv = random.randint(0, len(name_of_colors) - 3)
+				rcolors[colorv] = 1
+				currconfV[yi][xi] = colorv + 1
 				manyOnes -= 1
-				tmpv += 1
+				#tmpv += 1
 		except:
 			tkMessageBox.showinfo("Invalid Data", "Random Percentage Value must be a real value between 0.0 and 100.0")
 			return False
 	datavalidated = 1
+	origin_colors.clear()
+	for i in xrange(highV):
+		for j in xrange(wideV):
+			if (currconfV[i][j] > 0):
+				origin_colors.add(name_of_colors[currconfV[i][j] + 1])
 	Showcells()
 	return True
 
@@ -179,15 +213,6 @@ def SubCell(event):
 		return
 	currconfV[ny][nx] = 0
 	Showcells()
-
-def CountColor(color):
-	global currconfV, wideV, highV
-	res = 0
-	for i in range(highV):
-		for j in range(wideV):
-			if currconfV[i][j] == color:
-				res+=1
-	return res
 
 	
 def CountNeighbors(yi, xi):
@@ -255,10 +280,16 @@ def Process():
 	root.after(100, Process)
 	
 def runCallBack():
-	global datavalidated, running, currconfV
+	global datavalidated, running, currconfV, origin_colors, highV, wideV
 	if (datavalidated == 0):
 		if (not(ValidData())):
 			return
+	origin_colors.clear()
+	for i in xrange(highV):
+		for j in xrange(wideV):
+			if (currconfV[i][j] > 0):
+				origin_colors.add(name_of_colors[currconfV[i][j] + 1])
+			
 	running = True
 
 def stopCallBack():
