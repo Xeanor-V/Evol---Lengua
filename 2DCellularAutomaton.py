@@ -138,9 +138,9 @@ def ValidData():
 			tmpv = 0
 			while (tmpv < len(name_of_colors)):
 				if (tmpv % 2) == 0:
-					rcolors[tmpv] = tmpv
+					rcolors[tmpv] = tmpv + 2
 				else:
-					rcolors[tmpv] = len(name_of_colors) - tmpv - 1
+					rcolors[tmpv] = len(name_of_colors) - tmpv
 				tmpv += 1
 			tmpv = 0
 			while (manyOnes):
@@ -151,7 +151,7 @@ def ValidData():
 					pos = random.randint(1, (wideV * highV) - 2)
 					xi = pos % wideV
 					yi = pos / wideV					
-				currconfV[yi][xi] = rcolors[tmpv % len(rcolors)]
+				currconfV[yi][xi] = rcolors[tmpv % len(rcolors)] - 1
 				manyOnes -= 1
 				tmpv += 1
 		except:
