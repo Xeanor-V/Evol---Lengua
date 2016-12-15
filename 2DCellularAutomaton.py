@@ -189,9 +189,10 @@ def ValidData():
 					yi = pos / wideV					
 				#currconfV[yi][xi] = rcolors[tmpv % len(rcolors)] - 1
 				colorv = random.randint(0, len(name_of_colors) - 3)
-				while(rcolors[colorv] != 0):
-					colorv = random.randint(0, len(name_of_colors) - 3)
-				rcolors[colorv] = 1
+				if (manyOnes < (len(name_of_colors) - 2)):
+					while(rcolors[colorv] != 0):
+						colorv = random.randint(0, len(name_of_colors) - 3)
+					rcolors[colorv] = 1
 				currconfV[yi][xi] = colorv + 1
 				manyOnes -= 1
 				#tmpv += 1
