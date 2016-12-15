@@ -28,6 +28,8 @@ wideV = 1
 	
 dir_x = [1, 1, 1, 0, 0, -1, -1, -1, 0]
 dir_y = [1, 0, -1, 1, -1, 1, 0, -1, 0]
+#dir_x = [1, 0, 0, -1, 0]
+#dir_y = [0, 1, -1, 0, 0]
 
 datavalidated = 0
 
@@ -72,17 +74,19 @@ def ValidData():
 	print "Cell Size: ", cellsizeEntry.get()
 		
 	try:
-		wideV = int(wideEntry.get())
-		if (not(wideV > 0)):
-			raise
+		if (randomIniConfV.get() == 0):
+			wideV = int(wideEntry.get())
+			if (not(wideV > 0)):
+				raise
 	except:
 		tkMessageBox.showinfo("Invalid Data", "Wide Value must be a positive integer")
 		return False
 
 	try:
-		highV = int(highEntry.get())
-		if (not(highV > 0)):
-			raise
+		if (randomIniConfV.get() == 0):
+			highV = int(highEntry.get())
+			if (not(highV > 0)):
+				raise
 	except:
 		tkMessageBox.showinfo("Invalid Data", "High Value must be a positive integer")
 		return False
@@ -109,6 +113,22 @@ def ValidData():
 	
 	if (randomIniConfV.get() == 1):
 		try:
+			
+			im = Image.open("mapa.bmp")
+			pix = im.load()
+			currconfV = []
+			for i in xrange(im.size[0]):
+				tmp = []
+				for j in xrange(im.size[1]):
+					if (pix[i, j] == 255):
+						tmp.append(0)
+					else:
+						tmp.append(-1)
+				currconfV.append(tmp)
+			
+			highV = im.size[0]
+			wideV = im.size[1]
+			
 			randomPercentageV = float(randomPercentageEntry.get())
 			if (not((randomPercentageV >= 0.0) and (randomPercentageV <= 100.0))):
 				raise
@@ -137,7 +157,7 @@ def AddCell(event):
 	ny = event.y / (cellsizeV + sval)
 	if ((ny < 0) or (ny >= highV) or (nx < 0) or (nx >= wideV)):
 		return
-	currconfV[ny][nx] = 1
+	currconfV[ny][nx] = random.randint(2, len(name_of_colors) - 2)
 	Showcells()
 
 def SubCell(event):
@@ -146,7 +166,7 @@ def SubCell(event):
 	ny = event.y / (cellsizeV + sval)
 	if ((ny < 0) or (ny >= highV) or (nx < 0) or (nx >= wideV)):
 		return
-	currconfV[ny][nx] = 1
+	currconfV[ny][nx] = 0
 	Showcells()
 	
 def CountNeighbors(yi, xi):
@@ -154,7 +174,7 @@ def CountNeighbors(yi, xi):
 	res = 0
 	Colors = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 	manywc = 0.0
-	for i in range(9):
+	for i in range(len(dir_x)):
 		nx = (xi + dir_x[i] + wideV) % wideV
 		ny = (yi + dir_y[i] + highV) % highV
 		if (currconfV[ny][nx] > 0):
@@ -186,11 +206,11 @@ def CountNeighbors(yi, xi):
 	#print Colors
 	#print "{0} {1}".format(maxidx1, maxidx2)
 		
-	if(currconfV[xi][yi] == 0):
+	if(currconfV[yi][xi] == 0):
 		return maxidx1
-	if((currconfV[xi][yi] == maxidx1) and (max1 >= 0.5)):
+	if((currconfV[yi][xi] == maxidx1) and (max1 > 0.6)):
 		return maxidx1
-	if(max1 >= 0.5):
+	if(max1 > 0.75):
 		return maxidx1
 
 	return int(math.ceil( float(maxidx1 + maxidx2) / 2.0))
